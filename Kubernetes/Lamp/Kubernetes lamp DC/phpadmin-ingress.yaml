@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: phpmyadmin
+  namespace: klant1
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "wp-prod-issuer"
+spec:
+  rules:
+    - host: phpmyadmin.klant1.lamp.motoyo.be
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: phpmyadmin
+                port:
+                  number: 8080
+  tls:
+    - hosts:
+        - phpmyadmin.klant1.lamp.motoyo.be
+      secretName: phpmyadmin-tls

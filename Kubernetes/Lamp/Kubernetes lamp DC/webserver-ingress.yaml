@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: webserver-klant1
+  namespace: klant1
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "wp-prod-issuer"
+spec:
+  rules:
+    - host: www.klant1.motoyohosting.uk
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: webserver-klant1
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - www.klant1.motoyohosting.uk
+      secretName: webserver-klant1-tls

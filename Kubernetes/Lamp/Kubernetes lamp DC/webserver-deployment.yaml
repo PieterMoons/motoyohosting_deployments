@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webserver-klant1
+  namespace: klant1
+  labels:
+    component: webserver-klant1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: webserver-klant1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        component: webserver-klant1
+    spec:
+      containers:
+        - image: php:8.1.19-apache
+          name: php-apache
+          env:
+            - name: APACHE_DOCUMENT_ROOT
+              value: /var/www/html
+            - name: HOST_MACHINE_MYSQL_PORT
+              value: "3306"
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: secret-klant1
+                  key: username
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secret-klant1
+                  key: password
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secret-klant1
+                  key: password
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: secret-klant1
+                  key: username
+            - name: PMA_PORT
+              value: "3306"
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: webserver-klant1
+              mountPath: /var/www
+      restartPolicy: Always
+      volumes:
+        - name: webserver-klant1
+          persistentVolumeClaim:
+            claimName: webserver-klant1

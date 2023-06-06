@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: wordpress-klant2
+  namespace: klant2
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "wp-prod-issuer"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "360"
+
+spec:
+  rules:
+  - host: www.klant2.motoyohosting.uk
+    http:
+     paths:
+     - path: "/"
+       pathType: Prefix
+       backend:
+         service:
+           name: wordpress-klant2
+           port:
+             number: 80
+  tls:
+  - hosts:
+    - www.klant2.motoyohosting.uk
+    secretName: wordpress-klant2-tls

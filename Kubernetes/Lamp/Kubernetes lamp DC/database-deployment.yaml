@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: database
+  namespace: klant1
+  labels:
+    component: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: database
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        component: database
+    spec:
+      containers:
+        - image: mysql:latest
+          name: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: klant1
+                  key: password
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: klant1
+                  key: username
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: klant1
+                  key: password
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: klant1
+                  key: username
+          ports:
+            - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - name: database
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: database
+          persistentVolumeClaim:
+            claimName: database

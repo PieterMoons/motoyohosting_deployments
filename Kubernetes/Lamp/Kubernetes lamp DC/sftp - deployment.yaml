@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-config
+  namespace: klant1
+data:
+  users.conf: klant1:test12345:1001:1001:/html
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sftp-klant1
+  namespace: klant1
+  labels:
+    component: sftp-klant1
+spec:
+  selector:
+    matchLabels:
+      component: sftp-klant1
+  template:
+    metadata:
+      labels:
+        component: sftp-klant1
+    spec:
+      containers:
+        - image: atmoz/sftp:latest
+          imagePullPolicy: Always
+          name: sftp-klant1
+          ports:
+            - containerPort: 22
+              name: 22tcp
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /home/klant1/
+              name: webserver-klant1
+            - mountPath: /etc/sftp
+              name: users-klant1
+      restartPolicy: Always
+      volumes:
+        - name: webserver-klant1
+          persistentVolumeClaim:
+            claimName: webserver-klant1
+        - configMap:
+            defaultMode: 256
+            name: sftp-user-config-klant1
+            optional: false
+          name: users-klant1

@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: phpmyadmin
+  namespace: klant1
+  labels:
+    component: phpmyadmin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: phpmyadmin
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        component: phpmyadmin
+    spec:
+      containers:
+        - image: phpmyadmin
+          name: phpmyadmin
+          env:
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: klant1
+                  key: password
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: klant1
+                  key: password
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: klant1
+                  key: username
+            - name: PMA_HOST
+              value: database
+            - name: PMA_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: klant1
+                  key: password
+            - name: PMA_PORT
+              value: "3306"
+            - name: PMA_USER
+              valueFrom:
+                secretKeyRef:
+                  name: klant1
+                  key: username
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+          volumeMounts:
+            - mountPath: /usr/local/etc/php/conf.d/php-phpmyadmin.ini
+              name: phpmyadmin
+      restartPolicy: Always
+      volumes:
+        - name: phpmyadmin
+          persistentVolumeClaim:
+            claimName: phpmyadmin
